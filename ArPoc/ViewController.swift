@@ -14,6 +14,7 @@ import Combine
 class ViewController: UIViewController {
 
 	@IBOutlet var arView: ARView!
+	let boxAnchor = try! Experience.loadBox()
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -25,7 +26,19 @@ class ViewController: UIViewController {
 		enablePeopleOcclusion()
 	}
 
+	// adds a entity from a rcproject file
 	func addVase(on anchor: float4x4) {
+		guard let entity = boxAnchor.tulip?.clone(recursive: true) else {
+			fatalError()
+		}
+		let anchorEntity = AnchorEntity(world: anchor)
+		self.arView.scene.anchors.append(anchorEntity)
+
+		anchorEntity.addChild(entity, preservingWorldTransform: false)
+	}
+
+	// a way to add a entity from a usdz file
+	func addVaseDynamic(on anchor: float4x4) {
 		var cancellable: AnyCancellable? = nil
 		cancellable = ModelEntity.loadModelAsync(named: "vase")
 			.sink(receiveCompletion: { error in
